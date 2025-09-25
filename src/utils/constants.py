@@ -10,7 +10,7 @@ SOUNDS_DIR = os.path.join(ASSETS_DIR, "sounds")
 # =============================================================================
 # DISPLAY SETTINGS
 # =============================================================================
-SCREEN_WIDTH = 400
+SCREEN_WIDTH = 500
 SCREEN_HEIGHT = 600
 FPS = 60
 
@@ -26,7 +26,7 @@ BIRD_SIZE = 34
 # =============================================================================
 PIPE_WIDTH = 80
 PIPE_GAP = 150
-PIPE_FREQUENCY = 1500  # milliseconds between pipes
+PIPE_FREQUENCY = 1200  # milliseconds between pipes
 PIPE_SPEED = 3
 
 # =============================================================================

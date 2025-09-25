@@ -1,3 +1,4 @@
+from tkinter import font
 import pygame
 import math
 
@@ -45,12 +46,10 @@ class Renderer:
                 self.bg_x = 0
 
     def draw_ground(self):
-        """Draw scrolling ground and return ground Y position"""
         ground = self.assets.images.get("base")
         if ground:
             ground_y = self.screen_height - ground.get_height()
 
-            # Draw multiple ground sprites for seamless scrolling
             ground_width = ground.get_width()
             num_grounds = (self.screen_width // ground_width) + 2
 
@@ -65,7 +64,6 @@ class Renderer:
 
             return ground_y
         else:
-            # Fallback if ground sprite not found
             ground_y = self.screen_height - 50
             pygame.draw.rect(self.screen, self.green,
                              (0, ground_y, self.screen_width, 50))
@@ -153,24 +151,27 @@ class Renderer:
                 self.screen.blit(text1, rect1)
                 self.screen.blit(text2, rect2)
 
-    def draw_statistics(self, stats, x=10, y=10, title="Statistics"):
+    def draw_statistics(self, stats, x=10, y=10, title="Statistics", font_size='small'):
         """Draw real-time statistics with nice formatting"""
-        font_small = self.assets.get_font("small")
+        font = self.assets.get_font(font_size)
         font_medium = self.assets.get_font("medium")
 
-        if not font_small:
+        if not font:
             return
 
-        line_height = 22
-        padding = 10
+        line_height = 18 if font_size == 'small' else 22
+        padding = 8
 
         # Calculate box dimensions
         max_text_width = 0
-        lines = [title] + [f"{key}: {value:.2f}" if isinstance(value, float) else f"{key}: {value}"
-                           for key, value in stats.items()]
+        lines = [title] + [
+            f"{key}: {value:.2f}" if isinstance(value, float)
+            else f"{key}: {value}"
+            for key, value in stats.items()
+        ]
 
         for line in lines:
-            text_surface = font_small.render(line, True, self.white)
+            text_surface = font.render(line, True, self.white)
             max_text_width = max(max_text_width, text_surface.get_width())
 
         box_width = max_text_width + padding * 2
@@ -182,8 +183,7 @@ class Renderer:
         stats_surface.fill(self.black)
 
         # Add border
-        pygame.draw.rect(stats_surface, self.white,
-                         (0, 0, box_width, box_height), 2)
+        pygame.draw.rect(stats_surface, self.white, (0, 0, box_width, box_height), 2)
 
         self.screen.blit(stats_surface, (x, y))
 
@@ -191,47 +191,46 @@ class Renderer:
         if font_medium:
             title_surface = font_medium.render(title, True, self.yellow)
         else:
-            title_surface = font_small.render(title, True, self.yellow)
+            title_surface = font.render(title, True, self.yellow)
         self.screen.blit(title_surface, (x + padding, y + padding))
 
-        # Draw statistics
-        current_y = y + padding + line_height + 5
+        # Draw statistics text
+        current_y = y + padding + line_height + 3
         for key, value in stats.items():
             if isinstance(value, float):
                 text = f"{key}: {value:.2f}"
             elif isinstance(value, int):
-                # Add comma separators for large numbers
                 text = f"{key}: {value:,}"
             else:
                 text = f"{key}: {value}"
 
-            text_surface = font_small.render(text, True, self.white)
+            text_surface = font.render(text, True, self.white)
             self.screen.blit(text_surface, (x + padding, current_y))
             current_y += line_height
 
-    def draw_ai_info(self, generation, alive_birds, best_fitness, avg_fitness, total_birds):
-        """Draw AI training information"""
+    def draw_ai_info(self, generation, alive, best_score, best_fitness, avg_fitness,
+                 population, x=15, y=80, font_size='small'):
         ai_stats = {
-            "Generation": generation,
-            "Birds Alive": f"{alive_birds}/{total_birds}",
-            "Best Fitness": best_fitness,
-            "Avg Fitness": avg_fitness,
-            "Survival Rate": f"{(alive_birds/total_birds)*100:.1f}%" if total_birds > 0 else "0%"
+            "Gen": generation,
+            "Alive": f"{alive}/{population}",
+            "Best Score": best_score,
+            "Best Fitness": int(best_fitness),
+            "Avg Fitness": int(avg_fitness),
+            "Survival Rate": f"{(alive/population)*100:.0f}%" if population > 0 else "0%"
         }
-        self.draw_statistics(
-            ai_stats, self.screen_width - 220, 10, "AI Training")
+        self.draw_statistics(ai_stats, x, y, "AI Training", font_size=font_size)
 
     def draw_progress_bar(self, progress, x, y, width=200, height=20, label="Progress"):
         """Draw training progress bar with label"""
         # Draw label
         font = self.assets.get_font("small")
         if font and label:
-            text = font.render(label, True, self.white)
+            text = font.render(label, True, self.black)
             self.screen.blit(text, (x, y - 25))
 
         # Background
         pygame.draw.rect(self.screen, self.gray, (x, y, width, height))
-        pygame.draw.rect(self.screen, self.white, (x, y, width, height), 2)
+        pygame.draw.rect(self.screen, self.black, (x, y, width, height), 2)
 
         # Progress fill
         fill_width = int(width * min(progress, 1.0))
@@ -247,14 +246,14 @@ class Renderer:
             text_rect = text.get_rect(center=(x + width//2, y + height//2))
             self.screen.blit(text, text_rect)
 
-    def draw_fps(self):
-        self.frame_count += 1
+    def draw_fps(self, fps, x=10, y=None):
+        y = y or self.screen_height - 80
         font = self.assets.get_font("small")
         if font:
-            # Simple FPS approximation
-            fps_text = f"FPS: 60"  # Will be more accurate with actual timing
-            text = font.render(fps_text, True, self.green)
-            self.screen.blit(text, (10, self.screen_height - 30))
+            fps_text = f"FPS: {int(fps)}"
+            text = font.render(fps_text, True, self.blue if fps >= 30 else self.red)
+            self.screen.blit(text, (x, y))
+
 
     def draw_instructions(self):
         font = self.assets.get_font("small")

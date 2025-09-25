@@ -61,11 +61,11 @@ class PipeManager:
 
     def spawn_pipes(self):
         """Spawn a pair of pipes with random gap position"""
-        x = 450  # Spawn off-screen to the right
+        x = 500  # Spawn off-screen to the right
 
         # Random gap center position (avoid too high or too low)
         min_gap_center = 150
-        max_gap_center = 450
+        max_gap_center = 500
         gap_center = random.randint(min_gap_center, max_gap_center)
 
         # Create top and bottom pipes with same gap center

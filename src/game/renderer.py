@@ -23,11 +23,9 @@ class Renderer:
         self.yellow = (255, 255, 0)
         self.gray = (128, 128, 128)
 
-        # Performance tracking
         self.frame_count = 0
 
     def draw_background(self, bg_type="DAY"):
-        """Draw scrolling background"""
         background = self.assets.get_background(bg_type)
         if background:
             # Scale background to screen if needed
@@ -70,7 +68,6 @@ class Renderer:
             return ground_y
 
     def draw_birds(self, birds):
-        """Draw all birds with different colors for AI population"""
         colors = [self.red, self.blue, self.yellow,
                   self.green, (255, 0, 255), (0, 255, 255)]
 
@@ -92,14 +89,12 @@ class Renderer:
         numbers = self.assets.images.get("numbers", {})
 
         if not numbers or len(numbers) == 0:
-            # Fallback to text if number sprites not available
             font = self.assets.get_font("large")
             if font:
                 text = font.render(str(score), True, self.white)
                 text_rect = text.get_rect(
                     center=(center_x or self.screen_width//2, 50))
 
-                # Add shadow for better visibility
                 shadow = font.render(str(score), True, self.black)
                 shadow_rect = shadow.get_rect(
                     center=(text_rect.centerx + 2, text_rect.centery + 2))

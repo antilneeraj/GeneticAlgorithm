@@ -1,8 +1,8 @@
 {
   "algorithm_parameters": {
-    "population_size": 50,
+    "population_size": 100,
     "generations": 100,
-    "mutation_rate": 0.1,
+    "mutation_rate": 0.15,
     "crossover_rate": 0.8,
     "elite_count": 5,
     "selection_method": "tournament",
@@ -12,81 +12,81 @@
   "generation_statistics": [
     {
       "generation": 0,
-      "best_fitness": 163.0,
-      "average_fitness": 39.54,
-      "worst_fitness": 19.0,
-      "fitness_std": 25.589224294612762,
-      "diversity": 31.141911696862138,
-      "mutation_rate": 0.09000000000000001,
-      "evolution_time": 0.020053863525390625,
+      "best_fitness": 202.0,
+      "average_fitness": 37.76,
+      "worst_fitness": 18.0,
+      "fitness_std": 25.102238943966732,
+      "diversity": 31.178970619637948,
+      "mutation_rate": 0.135,
+      "evolution_time": 0.026603221893310547,
       "elite_count": 5
     },
     {
       "generation": 1,
-      "best_fitness": 227.0,
-      "average_fitness": 43.88,
-      "worst_fitness": 18.0,
-      "fitness_std": 34.33053451375321,
-      "diversity": 30.919313477008483,
-      "mutation_rate": 0.08100000000000002,
-      "evolution_time": 0.011518001556396484,
+      "best_fitness": 225.0,
+      "average_fitness": 46.38,
+      "worst_fitness": 19.0,
+      "fitness_std": 38.28466533744288,
+      "diversity": 30.053736376536865,
+      "mutation_rate": 0.12150000000000001,
+      "evolution_time": 0.0285799503326416,
       "elite_count": 5
     },
     {
       "generation": 2,
       "best_fitness": 226.0,
-      "average_fitness": 55.9,
+      "average_fitness": 47.89,
       "worst_fitness": 18.0,
-      "fitness_std": 51.88535438830498,
-      "diversity": 31.00948040325748,
-      "mutation_rate": 0.07290000000000002,
-      "evolution_time": 0.014790534973144531,
+      "fitness_std": 38.81028085443341,
+      "diversity": 29.583227669776573,
+      "mutation_rate": 0.10935000000000002,
+      "evolution_time": 0.030308246612548828,
       "elite_count": 5
     },
     {
       "generation": 3,
-      "best_fitness": 238.0,
-      "average_fitness": 74.84,
-      "worst_fitness": 19.0,
-      "fitness_std": 69.81757944815905,
-      "diversity": 27.619850937119786,
-      "mutation_rate": 0.06561000000000002,
-      "evolution_time": 0.01552891731262207,
+      "best_fitness": 506.0,
+      "average_fitness": 64.34,
+      "worst_fitness": 18.0,
+      "fitness_std": 79.73772256592233,
+      "diversity": 30.03288592669367,
+      "mutation_rate": 0.09841500000000002,
+      "evolution_time": 0.025542259216308594,
       "elite_count": 5
     },
     {
       "generation": 4,
-      "best_fitness": 416.0,
-      "average_fitness": 83.5,
-      "worst_fitness": 19.0,
-      "fitness_std": 87.93912667294349,
-      "diversity": 17.291004580198155,
-      "mutation_rate": 0.05904900000000002,
-      "evolution_time": 0.014033794403076172,
+      "best_fitness": 417.0,
+      "average_fitness": 59.17,
+      "worst_fitness": 18.0,
+      "fitness_std": 68.87787090205387,
+      "diversity": 28.048941235926794,
+      "mutation_rate": 0.08857350000000001,
+      "evolution_time": 0.024045944213867188,
       "elite_count": 5
     }
   ],
   "fitness_history": {
     "best": [
-      163.0,
-      227.0,
+      202.0,
+      225.0,
       226.0,
-      238.0,
-      416.0
+      506.0,
+      417.0
     ],
     "average": [
-      39.54,
-      43.88,
-      55.9,
-      74.84,
-      83.5
+      37.76,
+      46.38,
+      47.89,
+      64.34,
+      59.17
     ],
     "diversity": [
-      31.141911696862138,
-      30.919313477008483,
-      31.00948040325748,
-      27.619850937119786,
-      17.291004580198155
+      31.178970619637948,
+      30.053736376536865,
+      29.583227669776573,
+      30.03288592669367,
+      28.048941235926794
     ]
   }
 }

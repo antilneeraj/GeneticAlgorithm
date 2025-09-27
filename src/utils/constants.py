@@ -26,7 +26,7 @@ BIRD_SIZE = 34
 # =============================================================================
 PIPE_WIDTH = 80
 PIPE_GAP = 150
-PIPE_FREQUENCY = 1200  # milliseconds between pipes
+PIPE_FREQUENCY = 1500  # milliseconds between pipes
 PIPE_SPEED = 3
 
 # =============================================================================
@@ -92,12 +92,12 @@ MUSIC_VOLUME = 0.3
 # =============================================================================
 
 # Population Settings
-POPULATION_SIZE = 50          # Number of birds in each generation
+POPULATION_SIZE = 100          # Number of birds in each generation
 GENERATIONS = 100             # Maximum number of generations to evolve
 ELITE_COUNT = 5               # Number of best birds to preserve each generation
 
 # Evolution Rates
-MUTATION_RATE = 0.1           # Probability of mutation (10%)
+MUTATION_RATE = 0.15          # Probability of mutation (15%)
 CROSSOVER_RATE = 0.8          # Probability of crossover (80%)
 
 # Selection Parameters
@@ -267,7 +267,7 @@ def validate_constants():
 
 def print_config_summary():
     """Print a summary of the current configuration"""
-    print("🔧 GENETIC ALGORITHM CONFIGURATION")
+    print("GENETIC ALGORITHM CONFIGURATION")
     print("="*50)
     print(f"Population Size: {POPULATION_SIZE}")
     print(f"Generations: {GENERATIONS}")

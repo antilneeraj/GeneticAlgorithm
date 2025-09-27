@@ -10,7 +10,7 @@
 
 **⭐ Star this repository if you find it interesting! ⭐**
 
-[🎮 **Demo**](#demo) • [🚀 **Quick Start**](#quick-start) • [📖 **Documentation**](#documentation) • [🧬 **How It Works**](#how-it-works) • [📊 **Results**](#results)
+[🚀 **Quick Start**](#quick-start) • [📖 **Documentation**](#documentation) • [🧬 **How It Works**](#how-it-works) • [📊 **Results**](#results)
 
 *Watch AI birds evolve from random chaos to expert Flappy Bird gameplay using neural networks and genetic algorithms!*
 
@@ -28,7 +28,7 @@ This project implements an **AI that learns to play Flappy Bird** using:
 
 **No training data needed!** The AI learns purely through trial and error, just like biological evolution.
 
-## 🎥 **Demo**
+<!-- ## 🎥 **Demo**
 
 <div align="center">
 
@@ -38,7 +38,7 @@ This project implements an **AI that learns to play Flappy Bird** using:
 
 ### After Training (Generation 50+)
 *Intelligent navigation - birds score 10+ points consistently*
-
+ -->
 
 </div>
 

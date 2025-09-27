@@ -14,11 +14,16 @@ class Pipe:
         if is_top:
             # Flip the pipe for top pipe
             self.image = pygame.transform.flip(pipe_sprite, False, True)
-            # Position top pipe
             self.rect = self.image.get_rect()
-            self.rect.bottomleft = (x, gap_center - pipe_gap // 2)
+
+            # Fix: Attach top pipe to screen top!
+            self.rect.left = x
+            self.rect.top = 0
+            expected_bottom = gap_center - pipe_gap // 2
+            self.rect.bottom = expected_bottom
+            if self.rect.top > 0:
+                self.rect.top = 0  # Always flush
         else:
-            # Bottom pipe
             self.image = pipe_sprite.copy()
             self.rect = self.image.get_rect()
             self.rect.topleft = (x, gap_center + pipe_gap // 2)

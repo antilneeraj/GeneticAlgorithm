@@ -93,8 +93,8 @@ class Bird:
         if not self.alive:
             return False
             
-        # FIXED: Check ground collision with bigger buffer (was 3, now 8)
-        if self.rect.bottom >= ground_y - 8:  # 8 pixel buffer
+        # FIXED: Check ground collision with bigger buffer (was 3, now 6)
+        if self.rect.bottom >= ground_y - 6:  # 6 pixel buffer
             self.alive = False
             return True
             

@@ -1,4 +1,3 @@
-from tkinter import font
 import pygame
 import math
 

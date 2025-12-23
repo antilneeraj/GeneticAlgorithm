@@ -388,7 +388,7 @@ class GameEngine:
         if self.mode == "ai_training":
             alive_birds = sum(1 for bird in self.birds if bird.alive)
             # End if all dead OR timeout
-            if alive_birds == 0 or self.generation_frame_count > 4000:
+            if alive_birds == 0:        # add or self.generation_frame_count > 4000 to reduce time
                 self.end_generation()
         elif self.mode in ["human", "ai_play"]:
             if not any(bird.alive for bird in self.birds):
@@ -434,6 +434,7 @@ class GameEngine:
         # Save best individual
         if self.generation % 10 == 0 or best_score > 0:  # Save if we actually scored
             self.genetic_algorithm.save_best_individual()
+            self.genetic_algorithm.save_generation_stats()
 
         self.generation += 1
         self.generation_start_time = time.time()

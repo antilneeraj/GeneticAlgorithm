@@ -1,20 +1,8 @@
-import numpy as np
 import random
 
 class Selection:
     @staticmethod
     def tournament_selection(population, fitness_scores, tournament_size=3):
-        """
-        Tournament selection: Pick best individual from random tournament
-        
-        Args:
-            population: List of individuals (neural networks)
-            fitness_scores: List of fitness values
-            tournament_size: Size of tournament group
-            
-        Returns:
-            Selected individual
-        """
         # Select random individuals for tournament
         tournament_indices = random.sample(range(len(population)), 
                                          min(tournament_size, len(population)))
@@ -25,16 +13,6 @@ class Selection:
     
     @staticmethod
     def roulette_wheel_selection(population, fitness_scores):
-        """
-        Roulette wheel selection: Probability proportional to fitness
-        
-        Args:
-            population: List of individuals
-            fitness_scores: List of fitness values
-            
-        Returns:
-            Selected individual
-        """
         # Handle negative fitness values by shifting
         min_fitness = min(fitness_scores)
         if min_fitness < 0:
@@ -61,16 +39,6 @@ class Selection:
     
     @staticmethod  
     def rank_selection(population, fitness_scores):
-        """
-        Rank-based selection: Selection based on rank, not raw fitness
-        
-        Args:
-            population: List of individuals
-            fitness_scores: List of fitness values
-            
-        Returns:
-            Selected individual
-        """
         # Create rank-based weights
         sorted_indices = sorted(range(len(fitness_scores)), 
                               key=lambda i: fitness_scores[i])
@@ -82,17 +50,6 @@ class Selection:
     
     @staticmethod
     def elite_selection(population, fitness_scores, elite_count):
-        """
-        Elite selection: Select top performers
-        
-        Args:
-            population: List of individuals
-            fitness_scores: List of fitness values
-            elite_count: Number of elites to select
-            
-        Returns:
-            List of elite individuals
-        """
         elite_indices = sorted(range(len(fitness_scores)), 
                              key=lambda i: fitness_scores[i], 
                              reverse=True)[:elite_count]

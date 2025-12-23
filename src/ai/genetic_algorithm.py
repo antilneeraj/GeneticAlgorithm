@@ -17,16 +17,6 @@ class GeneticAlgorithm:
                  mutation_rate=MUTATION_RATE,
                  crossover_rate=CROSSOVER_RATE,
                  elite_count=ELITE_COUNT):
-        """
-        Initialize Genetic Algorithm
-
-        Args:
-            population_size: Number of individuals in population
-            generations: Number of generations to evolve
-            mutation_rate: Probability of mutation
-            crossover_rate: Probability of crossover
-            elite_count: Number of elite individuals to preserve
-        """
         self.population_size = population_size
         self.generations = generations
         self.mutation_rate = mutation_rate
@@ -53,13 +43,15 @@ class GeneticAlgorithm:
 
     def assign_brains_to_birds(self, birds):
         """Assign neural network brains to birds"""
+        # Ensure population is large enough (handle edge cases)
+        while len(self.population.individuals) < len(birds):
+            self.population.individuals.append(
+                NeuralNetwork(NN_INPUT_NODES, NN_HIDDEN_NODES, NN_OUTPUT_NODES)
+            )
+            
         for i, bird in enumerate(birds):
             if i < len(self.population.individuals):
                 bird.brain = self.population.individuals[i]
-            else:
-                # Extra birds get random brains
-                bird.brain = NeuralNetwork(
-                    NN_INPUT_NODES, NN_HIDDEN_NODES, NN_OUTPUT_NODES)
 
     def calculate_fitness_scores(self, birds, game_time_ms):
         """Calculate fitness for all birds after simulation"""
@@ -164,29 +156,41 @@ class GeneticAlgorithm:
         # Create next generation
         new_population = []
 
-        # 1. Elitism - keep best individuals
-        if self.elite_count > 0:
-            self.population.sort_by_fitness(descending=True)
-            elites = self.population.individuals[:self.elite_count]
-            new_population.extend([elite.copy() for elite in elites])
+        # Elitism - keep best individuals
+        self.population.sort_by_fitness(descending=True)
+        elites = self.population.individuals[:self.elite_count]
+        
+        new_population = [elite.copy() for elite in elites]
 
-        # 2. Generate offspring to fill remaining population
-        while len(new_population) < self.population_size:
-            # Select parents
-            parents = self.select_parents(2)
+        # Reproduction (Selection + Crossover)
+        # We leave space for random immigrants (10% of population)
+        immigrant_count = int(self.population_size * 0.1)
+        repro_count = self.population_size - len(new_population) - immigrant_count
 
-            # Create offspring
-            offspring = self.create_offspring(parents[0], parents[1])
-
-            # Add offspring to new population
+        while len(new_population) < (self.population_size - immigrant_count):
+            parent1 = Selection.tournament_selection(self.population.individuals, self.population.fitness_scores)
+            parent2 = Selection.tournament_selection(self.population.individuals, self.population.fitness_scores)
+            
+            offspring = Crossover.uniform_crossover(parent1, parent2)
+            
+            # Add mutated offspring
             for child in offspring:
-                if len(new_population) < self.population_size:
+                if len(new_population) < (self.population_size - immigrant_count):
+                    child = Mutation.gaussian_mutation(child, self.mutation_rate)
                     new_population.append(child)
+        
+        # Random Immigrants (Fresh Genes)
+        # Inject completely random individuals to maintain diversity
+        for _ in range(immigrant_count):
+            new_population.append(NeuralNetwork(NN_INPUT_NODES, NN_HIDDEN_NODES, NN_OUTPUT_NODES))
 
-        # 3. Replace population
+        # Fill any remaining gaps
+        while len(new_population) < self.population_size:
+            new_population.append(NeuralNetwork(NN_INPUT_NODES, NN_HIDDEN_NODES, NN_OUTPUT_NODES))
+
         self.population.replace_population(new_population)
 
-        # 4. Adaptive parameter adjustment
+        # Adaptive parameter adjustment
         if self.adaptive_mutation and diversity < self.diversity_threshold:
             self.mutation_rate = min(0.5, self.mutation_rate * 1.1)
         elif self.adaptive_mutation and diversity > self.diversity_threshold * 3:
@@ -237,10 +241,8 @@ class GeneticAlgorithm:
             json.dump(stats_data, f, indent=2)
 
     def save_best_individual(self, filename="data/models/best_bird.json"):
-        """Save best individual to file"""
         os.makedirs(os.path.dirname(filename), exist_ok=True)
-        fitness = self.population.save_best(filename)
-        return fitness
+        return self.population.save_best(filename)
 
     def get_evolution_summary(self):
         """Get summary of evolution process"""

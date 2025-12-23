@@ -2,6 +2,7 @@ import sys
 import argparse
 import pygame
 from src.game.game_engine import GameEngine
+from src.utils.constants import POPULATION_SIZE
 
 
 def print_banner():
@@ -53,7 +54,7 @@ def main():
 
     # Parse command line arguments
     parser = argparse.ArgumentParser(
-        description="Flappy Bird with Genetic Algorithm AI",
+        description="Flappy Bird AI",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -69,21 +70,13 @@ For help: python main.py --help
         '--mode',
         choices=['human', 'ai_training', 'ai_play'],
         default='human',
-        help='Game mode (default: human)'
     )
 
     parser.add_argument(
         '--population',
         type=int,
-        default=50,
-        help='Population size for AI training (default: 50)'
-    )
-
-    parser.add_argument(
-        '--generations',
-        type=int,
-        default=100,
-        help='Number of generations for AI training (default: 100)'
+        default=150,
+        help='Population size'
     )
 
     parser.add_argument(
@@ -101,6 +94,9 @@ For help: python main.py --help
 
     args = parser.parse_args()
 
+    pygame.init()
+    game = GameEngine(mode=args.mode)
+
     # Validate pygame installation
     if not validate_pygame():
         return 1
@@ -110,20 +106,19 @@ For help: python main.py --help
     print(f"🎯 Starting in {args.mode.upper()} mode...")
 
     if args.mode == "ai_training":
-        print(f"👥 Population size: {args.population}")
-        print(f"🧬 Generations: {args.generations}")
+        pop_size = args.population if args.population else POPULATION_SIZE
+        game.population_size = pop_size
+        print(f"⚙️ Configured Population Size: {pop_size}")
 
     # Additional setup based on arguments
     if args.no_sound:
+        game.asset_loader.sounds = {}
         print("🔇 Sound disabled")
 
     print(f"⚡ Target FPS: {args.fps}")
     print("\n" + "="*60)
 
     try:
-        # Create and run game engine
-        game = GameEngine(mode=args.mode)
-
         # Apply additional settings
         if hasattr(game, 'population_size'):
             game.population_size = args.population
@@ -137,6 +132,8 @@ For help: python main.py --help
         if args.no_sound:
             if hasattr(game.asset_loader, 'sounds'):
                 game.asset_loader.sounds = {}
+
+        game.init_game_mode()
 
         game.run()
 

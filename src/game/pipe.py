@@ -1,5 +1,6 @@
 import pygame
 import random
+from src.utils.constants import *
 
 
 class Pipe:
@@ -7,22 +8,18 @@ class Pipe:
         self.original_image = pipe_sprite
         self.pipe_gap = pipe_gap
         self.is_top = is_top
-        self.passed = False
-        self.speed = 3
+        # self.passed = False  <-- REMOVED: State should not be on shared object
+        self.speed = PIPE_SPEED
         self.gap_center = gap_center
 
         if is_top:
-            # Flip the pipe for top pipe
             self.image = pygame.transform.flip(pipe_sprite, False, True)
             self.rect = self.image.get_rect()
-
-            # Fix: Attach top pipe to screen top!
             self.rect.left = x
-            self.rect.top = 0
-            expected_bottom = gap_center - pipe_gap // 2
-            self.rect.bottom = expected_bottom
-            if self.rect.top > 0:
-                self.rect.top = 0  # Always flush
+            self.rect.bottom = gap_center - pipe_gap // 2
+            # Prevent top pipe from detaching if gap is too low
+            if self.rect.bottom < 0:
+                self.rect.bottom = 0
         else:
             self.image = pipe_sprite.copy()
             self.rect = self.image.get_rect()
@@ -37,7 +34,6 @@ class Pipe:
         return self.rect.right < 0
 
     def draw(self, screen):
-        """Draw the pipe on screen"""
         screen.blit(self.image, self.rect)
 
 
@@ -46,12 +42,10 @@ class PipeManager:
         self.pipe_sprite = pipe_sprite
         self.pipes = []
         self.spawn_timer = 0
-        # Frames between pipe spawns (1.5 seconds at 60 FPS)
         self.spawn_delay = 90
-        self.pipe_gap = 150  # Gap between top and bottom pipes
+        self.pipe_gap = PIPE_GAP
 
     def update(self):
-        """Update all pipes and spawn new ones"""
         # Update existing pipes
         for pipe in self.pipes[:]:
             pipe.update()
@@ -65,15 +59,12 @@ class PipeManager:
             self.spawn_timer = 0
 
     def spawn_pipes(self):
-        """Spawn a pair of pipes with random gap position"""
-        x = 500  # Spawn off-screen to the right
+        x = SCREEN_WIDTH + 10
 
-        # Random gap center position (avoid too high or too low)
         min_gap_center = 150
-        max_gap_center = 500
+        max_gap_center = SCREEN_HEIGHT - 150  # Keep gap within playable area
         gap_center = random.randint(min_gap_center, max_gap_center)
 
-        # Create top and bottom pipes with same gap center
         top_pipe = Pipe(x, self.pipe_sprite, self.pipe_gap,
                         is_top=True, gap_center=gap_center)
         bottom_pipe = Pipe(x, self.pipe_sprite, self.pipe_gap,
@@ -82,26 +73,39 @@ class PipeManager:
         self.pipes.extend([top_pipe, bottom_pipe])
 
     def get_pipes(self):
-        """Get list of all pipes"""
         return self.pipes
 
     def check_score(self, bird):
-        """Check if bird passed through pipes for scoring"""
+        """
+        Check if bird passed through pipes.
+        Uses bird.passed_pipes list to track state per-bird.
+        """
         score_gained = 0
+
+        # Ensure bird has the tracking list (handled in Bird class usually, but safe check here)
+        if not hasattr(bird, 'passed_pipes'):
+            bird.passed_pipes = []
+
         for pipe in self.pipes:
-            if (not pipe.passed and
-                pipe.rect.right < bird.rect.left and
-                    not pipe.is_top):  # Only count bottom pipes for scoring
-                pipe.passed = True
-                # Also mark the corresponding top pipe as passed
-                for other_pipe in self.pipes:
-                    if (other_pipe.is_top and
-                        abs(other_pipe.rect.x - pipe.rect.x) < 10 and
-                            not other_pipe.passed):
-                        other_pipe.passed = True
-                        break
-                score_gained += 1
-                bird.fitness += 100  # Bonus fitness for passing pipe
+            # We only score based on the bottom pipe to avoid double counting
+            if pipe.is_top:
+                continue
+
+            # Check if pipe is behind bird
+            if pipe.rect.right < bird.rect.left:
+                # Check if we haven't counted this pipe yet for this specific bird
+                if pipe not in bird.passed_pipes:
+                    bird.passed_pipes.append(pipe)
+                    score_gained += 1
+                    # Immediate fitness reward for passing
+                    bird.fitness += FITNESS_BONUS_PIPE
+
+        # Cleanup: Remove pipes from bird's memory that are no longer in game
+        # This prevents memory leaks in long runs
+        if len(bird.passed_pipes) > 5:
+            bird.passed_pipes = [
+                p for p in bird.passed_pipes if p in self.pipes]
+
         return score_gained
 
     def get_next_pipes(self, bird_x):
@@ -115,12 +119,10 @@ class PipeManager:
         return next_pipes
 
     def draw(self, screen):
-        """Draw all pipes"""
         for pipe in self.pipes:
             pipe.draw(screen)
 
     def clear(self):
-        """Clear all pipes (for game reset)"""
         self.pipes.clear()
         self.spawn_timer = 0
 

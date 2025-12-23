@@ -8,6 +8,7 @@ from src.game.bird import Bird
 from src.game.pipe import PipeManager
 from src.game.renderer import Renderer
 from src.utils.constants import *
+from src.ai.neural_network import NeuralNetwork
 
 
 class GameEngine:
@@ -76,13 +77,12 @@ class GameEngine:
         # Performance tracking
         self.fps_counter = 0
         self.fps_timer = time.time()
-        self.current_fps = 60
-
-        # Initialize based on mode
-        self.init_game_mode()
+        self.current_fps = FPS
 
     def init_game_mode(self):
         """Initialize game based on selected mode"""
+        print(
+            f"Initializing mode: {self.mode} with Population: {self.population_size}")
         if self.mode == "human":
             self.init_human_game()
         elif self.mode == "ai_training":
@@ -147,62 +147,49 @@ class GameEngine:
                 brain = NeuralNetwork(
                     NN_INPUT_NODES, NN_HIDDEN_NODES, NN_OUTPUT_NODES, seed=seed)
                 bird.brain = brain
-
-                # DEBUG: Log neural network weights for first few birds
-                if i < 5:
-                    weights = brain.get_weights_as_array()
-                    print(
-                        f"   Bird {i} brain: {len(weights)} params, sample weights: {weights[:5]}")
         else:
-            # Use evolved brains from genetic algorithm
+            # Use evolved brains
             self.genetic_algorithm.assign_brains_to_birds(self.birds)
 
-            # DEBUG: Verify brain diversity
-            if len(self.birds) >= 2:
-                weights1 = self.birds[0].brain.get_weights_as_array()
-                weights2 = self.birds[1].brain.get_weights_as_array()
-                difference = np.mean(np.abs(weights1 - weights2))
-                print(
-                    f"🧬 Brain diversity check: avg difference = {difference:.4f}")
-                if difference < 0.001:
-                    print("⚠️  WARNING: Brains are too similar!")
-
-        # DEBUG: Test neural network decisions with sample inputs
         self.test_neural_network_diversity()
-
-        print(
-            f"✅ Created {len(self.birds)} AI birds with diverse neural networks")
+        print(f"✅ Created {len(self.birds)} AI birds")
 
     def test_neural_network_diversity(self):
         """DEBUG: Test that neural networks make different decisions"""
         if len(self.birds) < 2:
             return
 
-        print("🧪 Testing neural network diversity...")
-        test_inputs = [
-            [0.5, 0.0, 0.8, 0.5],   # Mid-height, no velocity, far pipe, center gap
-            [0.2, -0.5, 0.6, 0.3],  # Low, falling, close pipe, low gap
-            [0.8, 0.3, 0.4, 0.7],   # High, rising, very close pipe, high gap
-        ]
+        # Only test first 10 birds to avoid console spam
+        test_inputs = [0.5, 0.0, 0.8, 0.5]
+        decisions = []
 
-        for i, test_input in enumerate(test_inputs):
-            decisions = []
-            for j in range(min(5, len(self.birds))):  # Test first 5 birds
-                if self.birds[j].brain:
-                    decision = self.birds[j].brain.predict(test_input)
-                    decisions.append(decision)
+        count = 0
+        for bird in self.birds:
+            if bird.brain and count < 10:
+                decisions.append(bird.brain.predict(test_inputs))
+                count += 1
 
-            unique_decisions = len(set(decisions))
+        if len(set(decisions)) == 1:
             print(
-                f"   Test {i+1}: {unique_decisions}/{len(decisions)} unique decisions")
-            if unique_decisions <= 1:
-                print(f"   ⚠️  All birds made same decision: {decisions}")
+                f"⚠️  WARNING: Low diversity! First 10 birds made same decision: {decisions[0]}")
+        else:
+            print(f"✨ Diversity check pass. Sample decisions: {decisions[:5]}")
 
     def init_ai_play(self):
         """Initialize game for watching trained AI play"""
         bird_sprites = self.asset_loader.get_bird_sprites("BLUE")
         bird = Bird(100, 300, bird_sprites, "BLUE")
-        bird.brain = None
+
+        try:
+            from src.ai.neural_network import NeuralNetwork
+            brain = NeuralNetwork(
+                NN_INPUT_NODES, NN_HIDDEN_NODES, NN_OUTPUT_NODES)
+            brain.load_from_file("data/models/best_bird.json")
+            bird.brain = brain
+            print("🧠 Loaded best bird model")
+        except:
+            print("⚠️ Could not load best bird, using random")
+
         self.birds = [bird]
         print("AI play mode initialized")
 
@@ -214,10 +201,8 @@ class GameEngine:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 4:   # Mouse wheel up
                     self.theme = "NIGHT"
-                    print("Theme changed to NIGHT")
                 elif event.button == 5:  # Mouse wheel down
                     self.theme = "DAY"
-                    print("Theme changed to DAY")
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:     # jump
@@ -229,15 +214,12 @@ class GameEngine:
                     return False
                 elif event.key == pygame.K_p:       # pause
                     self.paused = not self.paused
-                    print(f"Paused: {self.paused}")
                 elif event.key == pygame.K_d:  # Toggle debug mode
                     self.debug_mode = not self.debug_mode
-                    print(f"Debug mode: {'ON' if self.debug_mode else 'OFF'}")
 
         return True
 
     def handle_human_input(self):
-        """Handle human player input"""
         if self.game_state == GAME_STATES["MENU"]:
             self.game_state = GAME_STATES["PLAYING"]
             self.game_start_time = time.time()
@@ -246,34 +228,21 @@ class GameEngine:
                 if bird.alive:
                     bird.jump()
                     sound = self.asset_loader.get_sound("wing")
-                    if sound:
-                        sound.play()
+                    if sound: sound.play()
         elif self.game_state == GAME_STATES["GAME_OVER"]:
             self.restart_game()
 
     def update_game(self):
-        if self.paused:
-            return
-
-        if self.game_state not in [GAME_STATES["PLAYING"], GAME_STATES["TRAINING"]]:
-            return
+        if self.paused: return
+        if self.game_state not in [GAME_STATES["PLAYING"], GAME_STATES["TRAINING"]]: return
 
         self.frame_count += 1
         self.generation_frame_count += 1
-
-        # Update birds with debugging
+        
         self.update_birds_with_debugging()
-
-        # Update pipes
         self.pipe_manager.update()
-
-        # Check scoring
         self.check_scoring()
-
-        # Check game over conditions
         self.check_game_over()
-
-        # Update FPS counter
         self.update_fps_counter()
 
     def update_birds_with_debugging(self):
@@ -349,19 +318,18 @@ class GameEngine:
                     f"Frame {self.generation_frame_count}: {alive_count} alive, {jump_pct:.1f}% jumping")
 
     def check_bird_collision_detailed(self, bird, ground_y, bird_index):
-        """FIXED: More detailed and lenient collision detection"""
         if not bird.alive:
             return False
 
         collision_reason = None
 
         # Check ground collision (with small buffer)
-        if bird.rect.bottom >= ground_y - 5:  # 5 pixel buffer
+        if bird.rect.bottom >= ground_y - 2:  # 2 pixel buffer
             collision_reason = "ground"
             bird.alive = False
 
         # Check ceiling collision (with buffer)
-        elif bird.rect.top <= 5:  # 5 pixel buffer from ceiling
+        elif bird.rect.top <= 2:  # 2 pixel buffer from ceiling
             collision_reason = "ceiling"
             bird.alive = False
 
@@ -417,122 +385,62 @@ class GameEngine:
                         sound.play()
 
     def check_game_over(self):
-        """Check game over conditions with debugging"""
         if self.mode == "ai_training":
             alive_birds = sum(1 for bird in self.birds if bird.alive)
-            generation_time = time.time() - self.generation_start_time
-
-            # FIXED: More reasonable timeout and ending conditions
-            should_end = (
-                alive_birds == 0 or  # All birds dead
-                generation_time > 60 or  # 60 second timeout
-                self.generation_frame_count > 3600  # 60 seconds at 60fps
-            )
-
-            if should_end:
-                if generation_time > 60:
-                    print(f"⏰ Generation timeout after {generation_time:.1f}s")
-                elif self.generation_frame_count > 3600:
-                    print(
-                        f"⏰ Generation frame limit reached: {self.generation_frame_count}")
-
+            # End if all dead OR timeout
+            if alive_birds == 0 or self.generation_frame_count > 4000:
                 self.end_generation()
-
         elif self.mode in ["human", "ai_play"]:
             if not any(bird.alive for bird in self.birds):
                 self.game_state = GAME_STATES["GAME_OVER"]
 
     def end_generation(self):
-        """FIXED: Handle end of generation with proper fitness calculation"""
+        """Handle end of generation"""
         if not self.genetic_algorithm:
-            print("❌ No genetic algorithm initialized!")
             return
 
         generation_time = time.time() - self.generation_start_time
-
         print(f"\n🧬 Generation {self.generation} Analysis:")
-        print(f"   ⏱️  Duration: {generation_time:.1f}s")
-        print(f"   🏃‍♂️ Frames survived: {self.generation_frame_count}")
 
-        # FIXED: Calculate fitness based on actual performance
         fitness_scores = []
-        individual_stats = []
 
-        for i, bird in enumerate(self.birds):
-            # Calculate fitness based on actual survival time and score
-            survival_time = self.generation_frame_count if bird.alive else bird.fitness / \
-                FITNESS_BONUS_DISTANCE
+        for bird in self.birds:
+            # Ensure fitness isn't 0 if they did well but logic failed somewhere
+            # We trust the accumulated fitness, but add a small survival bump if needed
+            final_fitness = bird.fitness
+            if bird.score > 0:
+                # Extra multiplier for score to prioritize scoring over just floating
+                final_fitness += bird.score * 10
 
-            # FIXED: Proper fitness calculation
-            fitness = (
-                survival_time * FITNESS_BONUS_DISTANCE +  # Distance traveled
-                bird.score * FITNESS_BONUS_PIPE +         # Pipes passed
-                (50 if bird.alive else 0)                 # Survival bonus
-            )
-
-            bird.fitness = fitness
-            fitness_scores.append(fitness)
-
-            individual_stats.append({
-                "id": i,
-                "fitness": fitness,
-                "score": bird.score,
-                "survival": survival_time,
-                "alive": bird.alive
-            })
+            fitness_scores.append(final_fitness)
+            bird.fitness = final_fitness  # Sync back for stats
 
         # Update population fitness scores
         self.genetic_algorithm.population.fitness_scores = fitness_scores
 
-        # Display detailed statistics
-        alive_birds = sum(1 for bird in self.birds if bird.alive)
+        # Stats display
         max_fitness = max(fitness_scores) if fitness_scores else 0
         avg_fitness = sum(fitness_scores) / \
             len(fitness_scores) if fitness_scores else 0
         best_score = max(
             bird.score for bird in self.birds) if self.birds else 0
-        max_survival = max(
-            bird.fitness / FITNESS_BONUS_DISTANCE for bird in self.birds) if self.birds else 0
 
-        print(f"   📊 Alive at end: {alive_birds}/{len(self.birds)}")
         print(f"   🏆 Best fitness: {max_fitness:.1f}")
-        print(f"   📈 Average fitness: {avg_fitness:.1f}")
         print(f"   🎯 Best score: {best_score}")
-        print(f"   ⚡ Max survival: {max_survival:.1f} frames")
 
-        # Show top performers
-        top_performers = sorted(
-            individual_stats, key=lambda x: x["fitness"], reverse=True)[:3]
-        print(f"   🏅 Top performers:")
-        for i, perf in enumerate(top_performers):
-            print(
-                f"      {i+1}. Bird {perf['id']}: fitness={perf['fitness']:.1f}, score={perf['score']}, survival={perf['survival']:.1f}")
+        # Evolve
+        self.genetic_algorithm.evolve_generation()
 
-        # Evolve to next generation
-        print(f"   🧬 Evolving to generation {self.generation + 1}...")
-        gen_stats = self.genetic_algorithm.evolve_generation()
+        # Save best individual
+        if self.generation % 10 == 0 or best_score > 0:  # Save if we actually scored
+            self.genetic_algorithm.save_best_individual()
 
-        # Save best individual periodically
-        if self.generation % 10 == 0:
-            best_fitness = self.genetic_algorithm.save_best_individual()
-            print(f"   💾 Saved best bird (fitness: {best_fitness:.2f})")
-
-        # Save statistics
-        if self.generation % 5 == 0:
-            self.genetic_algorithm.save_generation_stats()
-            print(f"   📊 Saved generation statistics")
-
-        # Prepare for next generation
         self.generation += 1
         self.generation_start_time = time.time()
         self.generation_frame_count = 0
         self.score = 0
-
-        # Clear pipes and create new birds
         self.pipe_manager.clear()
         self.create_ai_birds_with_debugging()
-
-        print(f"   ✅ Generation {self.generation} ready!\n")
 
     def update_fps_counter(self):
         self.fps_counter += 1
@@ -568,7 +476,8 @@ class GameEngine:
             alive_count = sum(1 for bird in self.birds if bird.alive)
             debug_text = f"DEBUG: Frame {self.generation_frame_count}, Alive: {alive_count}"
             text_surface = font.render(debug_text, True, (255, 255, 0))
-            self.screen.blit(text_surface, (self.screen_width - 240, self.screen_height - 80))
+            self.screen.blit(
+                text_surface, (self.screen_width - 240, self.screen_height - 80))
 
     def render_ui(self):
         """Render user interface"""
@@ -664,20 +573,14 @@ class GameEngine:
         self.generation_frame_count = 0
         self.game_start_time = time.time()
         self.pipe_manager.clear()
-
-        # Reinitialize birds based on mode
         self.init_game_mode()
 
     def load_high_score(self):
-        """Load high score from file"""
         try:
-            with open("data/high_score.txt", "r") as f:
-                return int(f.read().strip())
-        except:
-            return 0
+            with open("data/high_score.txt", "r") as f: return int(f.read().strip())
+        except: return 0
 
     def save_high_score(self):
-        """Save high score to file"""
         try:
             import os
             os.makedirs("data", exist_ok=True)
@@ -687,29 +590,13 @@ class GameEngine:
             print(f"Could not save high score: {e}")
 
     def run(self):
-        """Main game loop"""
-        print(f"🚀 Starting Flappy Bird DEBUG MODE in {self.mode} mode")
-        print("Press 'D' to toggle debug info during gameplay")
+        print(f"🚀 Starting Flappy Bird in {self.mode} mode")
         running = True
-
         while running:
-            # Handle events
             running = self.handle_events()
-
-            if not running:
-                break
-
-            # Update game
+            if not running: break
             self.update_game()
-
-            # Render
             self.render_game()
-
-            # Control framerate
             self.clock.tick(FPS)
-
-        # Cleanup
-        self.save_high_score()
-        print("Game ended. Thanks for playing!")
         pygame.quit()
         sys.exit()

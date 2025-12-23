@@ -92,13 +92,13 @@ MUSIC_VOLUME = 0.3
 # =============================================================================
 
 # Population Settings
-POPULATION_SIZE = 100          # Number of birds in each generation
-GENERATIONS = 100             # Maximum number of generations to evolve
-ELITE_COUNT = 5               # Number of best birds to preserve each generation
+POPULATION_SIZE = 150          # INCREASED: More birds = higher chance of good mutation
+GENERATIONS = 1000
+ELITE_COUNT = 10               # Keep top 10 to ensure best traits persist
 
 # Evolution Rates
-MUTATION_RATE = 0.15          # Probability of mutation (15%)
-CROSSOVER_RATE = 0.8          # Probability of crossover (80%)
+MUTATION_RATE = 0.2            # Increased to 20% to prevent stagnation
+CROSSOVER_RATE = 0.7
 
 # Selection Parameters
 TOURNAMENT_SIZE = 3           # Size of tournament selection groups
@@ -132,9 +132,9 @@ BIAS_INIT_RANGE = 0.5         # Range for random bias initialization
 # =============================================================================
 
 # Base Fitness Components
-FITNESS_BONUS_PIPE = 100      # Points awarded for passing through a pipe
-FITNESS_BONUS_DISTANCE = 1    # Points per frame survived (distance traveled)
-FITNESS_PENALTY_DEATH = -50   # Penalty for crashing/dying
+FITNESS_BONUS_PIPE = 200      # Higher reward for passing pipe
+FITNESS_BONUS_DISTANCE = 0.1    # Lower reward for just surviving (discourages floating at top)
+FITNESS_PENALTY_DEATH = -10
 
 # Advanced Fitness Bonuses
 FITNESS_BONUS_CONSISTENCY = 50   # Bonus for consistent performance

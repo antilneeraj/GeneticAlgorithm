@@ -324,12 +324,12 @@ class GameEngine:
         collision_reason = None
 
         # Check ground collision (with small buffer)
-        if bird.rect.bottom >= ground_y - 2:  # 2 pixel buffer
+        if bird.rect.bottom >= ground_y - 5:  # 5 pixel buffer
             collision_reason = "ground"
             bird.alive = False
 
         # Check ceiling collision (with buffer)
-        elif bird.rect.top <= 2:  # 2 pixel buffer from ceiling
+        elif bird.rect.top <= 5:  # 5 pixel buffer from ceiling
             collision_reason = "ceiling"
             bird.alive = False
 

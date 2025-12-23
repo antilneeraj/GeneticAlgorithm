@@ -1,13 +1,4 @@
-# FIXED DIAGNOSTIC SCRIPT - Handles pygame initialization properly
-"""
-diagnostic_ai_debug_fixed.py
-Run this script to identify and fix AI training issues
-"""
-
-import sys
-import os
 import numpy as np
-import random
 import time
 from src.utils.constants import *
 

@@ -1,303 +1,190 @@
-# Flappy Bird AI - Genetic Algorithm Evolution 🧬🐦
+# 🧬 NeuroEvolution Flappy Bird
+### A Deep Learning & Genetic Algorithm Research Sandbox
 
 <div align="center">
 
 [![Stars](https://img.shields.io/github/stars/antilneeraj/geneticalgorithm?style=for-the-badge&logo=github&color=yellow)](https://github.com/antilneeraj/geneticalgorithm/stargazers)
-[![Follow](https://img.shields.io/github/followers/antilneeraj?style=for-the-badge&logo=github&color=blue)](https://github.com/antilneeraj)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg?style=for-the-badge&logo=python)](https://www.python.org/)
-[![Pygame](https://img.shields.io/badge/Pygame-2.0+-green.svg?style=for-the-badge&logo=python)](https://www.pygame.org/)
+[![Python](https://img.shields.io/badge/Python-3.10+-blue.svg?style=for-the-badge&logo=python)](https://www.python.org/)
+[![Pygame](https://img.shields.io/badge/Pygame-2.5+-red.svg?style=for-the-badge&logo=pygame)](https://www.pygame.org/)
+[![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg?style=for-the-badge)](https://github.com/psf/black)
 
-**⭐ Star this repository if you find it interesting! ⭐**
-
-[🚀 **Quick Start**](#quick-start) • [📖 **Documentation**](#documentation) • [🧬 **How It Works**](#how-it-works) • [📊 **Results**](#results)
-
-*Watch AI birds evolve from random chaos to expert Flappy Bird gameplay using neural networks and genetic algorithms!*
+[**Quick Start**](#-quick-start) • [**Architecture**](#-neural-network-architecture) • [**Genetic Algorithm**](#-genetic-algorithm-implementation) • [**Benchmarks**](#-performance--results)
 
 </div>
 
 ---
 
-## 🎯 **What is this?**
+## 🎯 Project Overview
 
-This project implements an **AI that learns to play Flappy Bird** using:
-- 🧠 **Neural Networks** for decision making
-- 🧬 **Genetic Algorithm** for evolution
-- 🎮 **Pygame** for game simulation
-- 📊 **Real-time visualization** of learning progress
+This repository hosts a robust implementation of **NeuroEvolution** applied to the classic Flappy Bird game. It serves as a research testbed for studying how biological evolution principles can be applied to train artificial neural networks without backpropagation or labeled training data.
 
-**No training data needed!** The AI learns purely through trial and error, just like biological evolution.
+The system uses a **Genetic Algorithm (GA)** to evolve the weights and biases of a fixed-topology neural network. Agents (birds) learn to navigate obstacles purely through evolutionary pressure—survival of the fittest.
 
-<!-- ## 🎥 **Demo**
+### 🌟 Key Features for Researchers
+- **Adaptive Evolutionary Parameters**: Mutation rates dynamicially adjust based on population diversity to prevent premature convergence.
+- **Pluggable Architecture**: Modular design allows easy swapping of crossover strategies (Uniform, Single-Point, Arithmetic) and selection methods.
+- **Real-time Diagnostics**: Monitor the "brain" of the best performing agent in real-time.
+- **Serialization**: Save and load the entire state of the best neural networks (JSON format) for later analysis or transfer learning.
+- **Headless Training**: Decoupled game logic allows for high-speed training (configurable).
 
-<div align="center">
+---
 
-### Before Training (Generation 1)
-*Chaotic random behavior - birds crash within seconds*
+## 🧠 Neural Network Architecture
 
+Each agent is controlled by a feed-forward neural network. The topology is fixed, while the weights and biases are the subject of evolution.
 
-### After Training (Generation 50+)
-*Intelligent navigation - birds score 10+ points consistently*
- -->
+### **Topology**
+- **Input Layer (4 Nodes)**:
+  1. `Bird Y` (Normalized 0-1)
+  2. `Bird Velocity` (Normalized 0-1)
+  3. `Distance to Next Pipe (X)` (Normalized 0-1)
+  4. `Vertical Distance to Gap (Y)` (Normalized, centered at 0.5)
+- **Hidden Layers**: Fully connected layers. Default configuration: `[6, 4]` neurons.
+- **Output Layer (1 Node)**: Jump probability.
 
-</div>
+### **Activation Functions**
+- **Hidden Layers**: `Hyperbolic Tangent (tanh)` - Chosen for its zero-centered range `[-1, 1]`, allowing for stronger negative inhibition signals compared to Sigmoid.
+- **Output Layer**: `Sigmoid` - Maps the final aggregation to a probability `[0, 1]`. A value `> 0.5` triggers a jump.
 
-> **Note**: Add your gameplay GIFs/videos here to showcase the evolution!
+[![](https://mermaid.ink/img/pako:eNp9kU1vwjAMhv9KZC5MKlU_SD9y4LIdYGJC2m4jOwSS0mptUqWJRof470uhaGiH5WQ7z_vask-wV1wAgYNmbYnWr1Qi91ZbCivZWtOh6fyBwgeazRZoGbrysuJcSLRmvdAoRNNk-L6qluEVi_5i0egyYtEF2zhqY41rgqbPtmnRAgU-_sU609cCrVBR1TWZFHnhdUarT0EmcRyP8eyr4qYkUXu812xGzW73vwY8aIRuWMXdAk6DAwVTikZQIC6UwhrNagpUnh3KrFFvvdwDMdoKD7Syh_KW2JYzI54q5vbY3Iotk-9K3adATnAEglMfJ9E8z7IkzeMUJx70QOIo8BOcxGmU4QznYZCcPfi-GAR-lmLPHWkYtWB1N_QXkgv9qKw0QNLMA8Ero_TL9Z6Xs55_APoMkWM?type=png)](https://mermaid.live/edit#pako:eNp9kU1vwjAMhv9KZC5MKlU_SD9y4LIdYGJC2m4jOwSS0mptUqWJRof470uhaGiH5WQ7z_vask-wV1wAgYNmbYnWr1Qi91ZbCivZWtOh6fyBwgeazRZoGbrysuJcSLRmvdAoRNNk-L6qluEVi_5i0egyYtEF2zhqY41rgqbPtmnRAgU-_sU609cCrVBR1TWZFHnhdUarT0EmcRyP8eyr4qYkUXu812xGzW73vwY8aIRuWMXdAk6DAwVTikZQIC6UwhrNagpUnh3KrFFvvdwDMdoKD7Syh_KW2JYzI54q5vbY3Iotk-9K3adATnAEglMfJ9E8z7IkzeMUJx70QOIo8BOcxGmU4QznYZCcPfi-GAR-lmLPHWkYtWB1N_QXkgv9qKw0QNLMA8Ero_TL9Z6Xs55_APoMkWM)
 
-## 🚀 **Quick Start**
+---
+
+## 🧬 Genetic Algorithm Implementation
+
+The evolution engine drives the learning process through the following lifecycle:
+
+1.  **Evaluation**: Each agent plays the game until collision.
+    - Fitness Function: $F = t_{survival} + (100 \times N_{pipes}) - 50_{crash}$
+2.  **Selection**: A subset of parents is chosen to reproduce.
+    - Default: **Tournament Selection** (k=3). Robust against outliers.
+3.  **Crossover**: Genetic material (weights/biases) is mixed.
+    - Default: **Uniform Crossover**. Attributes are chosen randomly from either parent with equal probability, preserving genetic diversity better than single-point crossover for neural weights.
+4.  **Mutation**: Random perturbations are applied to weights.
+    - Default: **Gaussian Mutation**. Small values drawn from a normal distribution added to weights.
+    - **Adaptive Logic**: If population diversity drops below threshold $\delta$, mutation rate $\mu$ is boosted.
+5.  **Elitism & Immigrants**:
+    - Top $N$ performers carry over unchanged (Elitism).
+    - 10% of new population are randomized "Immigrants" to inject fresh genetic material.
+
+---
+
+## 🚀 Quick Start
 
 ### Prerequisites
-- Python 3.8+
-- pip package manager
+- Python 3.8 or higher
+- pip (Python Package Manager)
 
 ### Installation
 
 ```bash
-# Clone the repository
+# 1. Clone the repository
 git clone https://github.com/antilneeraj/geneticalgorithm.git
 cd geneticalgorithm
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
+# 2. Install dependencies
 pip install -r requirements.txt
 ```
 
-### Usage
+### Usage Modes
 
+**1. Watch the AI Learn (Training Mode)**
+This is the default mode where you see evolution in action.
 ```bash
-# Watch AI learn to play (recommended)
-python main.py --mode ai_training --population 50
+python main.py --mode ai_training --population 50 --fps 60
+```
+- Use `--no-sound` to speed up processing slightly.
 
-# Play yourself
+**2. Play as Human**
+Challenge yourself against the game physics.
+```bash
 python main.py --mode human
+```
 
-# Watch trained AI play
+**3. Run Best Trained Model**
+Load the best performing bird from previous runs.
+```bash
 python main.py --mode ai_play
-
-# Run diagnostics
-python diagnostic_ai_debug.py
 ```
 
-## 🎮 **Game Controls**
+---
 
-| Key | Action |
-|-----|--------|
-| `SPACE` | Jump (Human mode) / Start game |
-| `R` | Restart game |
-| `P` | Pause/Unpause |
-| `D` | Toggle debug info |
-| `ESC` | Quit game |
+## ⚙️ Configuration
 
-## 🧬 **How It Works**
+Hyperparameters are located in `src/utils/constants.py`. Tweak these to experiment with evolutionary dynamics:
 
-### 1. **Neural Network Brain**
-Each bird has a neural network with:
-- **Input**: Bird position, velocity, pipe distance, gap location
-- **Hidden Layers**: 6 → 4 neurons with tanh activation  
-- **Output**: Jump decision (sigmoid activation)
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `POPULATION_SIZE` | 150 | Number of agents per generation. Higher = more diversity but slower. |
+| `MUTATION_RATE` | 0.1 | Base probability of a gene mutating. |
+| `ELITE_COUNT` | 5 | Number of top agents preserved perfectly. |
+| `NN_HIDDEN_NODES` | `[6, 4]` | Topology of the "Brain". |
+| `ACTIVATION` | `tanh` | Activation function for hidden layers. |
 
-### 2. **Genetic Algorithm Evolution**
-```
-Generation 1: 50 random birds → Most die quickly
-    ↓
-Fitness Evaluation: Survival time + Score + Bonuses
-    ↓
-Selection: Keep top 5 performers (elitism)
-    ↓
-Reproduction: Crossover + Mutation
-    ↓
-Generation 2: Improved birds → Better performance
-    ↓
-Repeat for 100+ generations...
-    ↓
-Result: Expert-level AI players!
-```
+---
 
-### 3. **Fitness Function**
-```python
-fitness = survival_time * 1.0 + score * 100 + bonuses
-```
-- **Survival bonus**: +1 point per frame alive
-- **Pipe bonus**: +100 points per pipe passed
-- **Death penalty**: -50 points for crashing
+## 📊 Performance & Results
 
-## 📊 **Training Results**
+Typical convergence behavior observed with default parameters:
 
-### Performance Evolution
-| Generation | Best Score | Avg Survival | Best AI Behavior |
-|------------|------------|--------------|------------------|
-| 1-5 | 0 | 30-80 frames | Random chaos |
-| 10-20 | 1-2 | 200-400 frames | Basic navigation |
-| 30-50 | 3-8 | 500-800 frames | Smart pipe avoidance |
-| 50+ | 10+ | 1000+ frames | Expert gameplay |
+- **Gen 0-5**: Pure random behavior. Most birds crash immediately.
+- **Gen 10-20**: "Wall-following" or "Floor-hugging" strategies emerge.
+- **Gen 30-50**: Discovery of the gap. Agents begin to pass 1-5 pipes.
+- **Gen 500+**: Mastery. Agents can play indefinitely.
 
-### Key Metrics
-- **Population Size**: 50 birds per generation
-- **Training Time**: ~2-5 minutes per generation  
-- **Convergence**: Expert level in ~50 generations
-- **Success Rate**: 95%+ birds learn to score points
+*Note: Convergence speed is highly dependent on `POPULATION_SIZE` and `MUTATION_RATE`. Larger populations generally converge in fewer generations but take longer computation time per generation.*
 
-## 🏗️ **Project Structure**
+---
+
+## 📁 Project Structure
 
 ```
 geneticalgorithm/
 ├── src/
-│   ├── game/               # Game engine and components
-│   │   ├── bird.py        # Bird class with AI integration
-│   │   ├── pipe.py        # Pipe generation and collision
-│   │   ├── game_engine.py # Main game loop and AI training
-│   │   └── renderer.py    # Graphics and UI rendering
-│   ├── ai/                # AI and machine learning components
-│   │   ├── neural_network.py    # Neural network implementation
-│   │   ├── genetic_algorithm.py # Evolution logic
+│   ├── ai/                # Core Intelligence Logic
+│   │   ├── neural_network.py    # Feed-forward NN implementation
+│   │   ├── genetic_algorithm.py # Evolution engine
+│   │   ├── crossover.py         # Crossover strategies
+│   │   ├── mutation.py          # Mutation strategies
 │   │   └── fitness.py           # Fitness evaluation
-│   └── utils/             # Utilities and configuration
-│       ├── constants.py   # Game and AI parameters
-│       └── asset_loader.py # Resource management
-├── assets/                # Game sprites, sounds, fonts
-├── data/                 # Training data and saved models
-├── main.py              # Entry point
-├── requirements.txt     # Dependencies
-└── README.md           # This file
+│   ├── game/              # Game Simulation
+│   │   ├── game_engine.py       # Main loop
+│   │   └── bird.py              # Agent physics & sensing
+│   └── utils/             # Config & Helpers
+├── data/
+│   ├── models/            # Serialized Best Birds (.json)
+│   └── statistics/        # Evolution metrics
+├── assets/                # Sprites & Audio
+├── main.py                # Entry point
+└── README.md
 ```
 
-## 🛠️ **Configuration**
+---
 
-Customize training parameters in `src/utils/constants.py`:
+## 🤝 Contributing
 
-```python
-# Genetic Algorithm Settings
-POPULATION_SIZE = 50        # Number of birds per generation
-GENERATIONS = 100           # Maximum generations
-MUTATION_RATE = 0.1         # Probability of mutation
-CROSSOVER_RATE = 0.8        # Probability of crossover
-ELITE_COUNT = 5             # Top performers to preserve
+We welcome contributions from the research and open-source community!
 
-# Neural Network Architecture  
-NN_INPUT_NODES = 4          # Game state inputs
-NN_HIDDEN_NODES = [6, 4]    # Hidden layer sizes
-NN_OUTPUT_NODES = 1         # Jump decision output
+1. **Fork** the repository.
+2. Create a **Feature Branch** (`git checkout -b feature/NewSelectionMethod`).
+3. Commit your changes.
+4. Push to the branch.
+5. Open a **Pull Request**.
 
-# Fitness Parameters
-FITNESS_BONUS_PIPE = 100    # Points per pipe passed
-FITNESS_BONUS_DISTANCE = 1  # Points per frame survived
-FITNESS_PENALTY_DEATH = -50 # Penalty for dying
-```
-
-## 🧪 **Running Tests**
-
+Please ensure you run diagnostics before submitting:
 ```bash
-# Test neural network diversity
-python diagnostic_ai_debug.py
-
-# Validate AI components
-python validate_ai_constants.py
-
-# Run performance benchmarks
-python benchmarks.py
-```
-
-## 📈 **Features**
-
-- ✅ **Real-time AI training visualization**
-- ✅ **Multiple game modes** (Human, AI Training, AI Play)
-- ✅ **Configurable parameters** for experimentation
-- ✅ **Performance analytics** and statistics
-- ✅ **Save/load trained models**
-- ✅ **Debug mode** with detailed metrics
-- ✅ **Professional logging** system
-- ✅ **Cross-platform compatibility**
-
-## 🤝 **Contributing**
-
-Contributions are welcome! Here's how you can help:
-
-1. **Fork the repository**
-2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
-3. **Commit changes**: `git commit -m 'Add amazing feature'`
-4. **Push to branch**: `git push origin feature/amazing-feature`  
-5. **Open a Pull Request**
-
-### Development Setup
-```bash
-# Install development dependencies
-pip install -r requirements-dev.txt
-
-# Run tests
-python -m pytest tests/
-
-# Format code
-python -m black src/
-python -m isort src/
-```
-
-## 📚 **Learning Resources**
-
-- [Genetic Algorithms Explained](https://en.wikipedia.org/wiki/Genetic_algorithm)
-- [Neural Networks Basics](https://www.3blue1brown.com/topics/neural-networks)
-- [NEAT Algorithm Paper](https://nn.cs.utexas.edu/downloads/papers/stanley.ec02.pdf)
-- [Game AI Development](https://www.gamasutra.com/blogs/ChrisSimpson/20140717/221549/Behavior_trees_for_AI_How_they_work.php)
-
-## 🐛 **Troubleshooting**
-
-<details>
-<summary><b>Common Issues & Solutions</b></summary>
-
-**Issue**: Birds not learning / identical behavior
-```bash
-# Run diagnostics to check neural network diversity
 python diagnostic_ai_debug.py
 ```
 
-**Issue**: Game crashes on startup
-```bash
-# Check pygame installation
-pip install --upgrade pygame
-```
+---
 
-**Issue**: Poor AI performance
-```bash
-# Try adjusting parameters in constants.py
-MUTATION_RATE = 0.15  # Increase for more diversity
-POPULATION_SIZE = 100 # Larger population
-```
-
-**Issue**: Slow training
-```bash
-# Reduce population size for faster iterations
-POPULATION_SIZE = 20
-```
-
-</details>
-
-## 📄 **License**
+## 📜 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 **Acknowledgments**
-
-- **Pygame Community** for the excellent game development framework
-- **NEAT Algorithm** inspiration for neural network evolution
-- **Flappy Bird** original game concept by Dong Nguyen
-- **AI Research Community** for genetic algorithm innovations
-
-## 📞 **Contact & Support**
-
-- **GitHub Issues**: [Report bugs or request features](https://github.com/antilneeraj/geneticalgorithm/issues)
-- **Discussions**: [Ask questions or share ideas](https://github.com/antilneeraj/geneticalgorithm/discussions)  
 
 ---
 
 <div align="center">
-
-**⭐ Don't forget to star this repository if you found it useful! ⭐**
-
-[![Stars](https://img.shields.io/github/stars/antilneeraj/geneticalgorithm?style=social)](https://github.com/antilneeraj/geneticalgorithm/stargazers)
-[![Follow](https://img.shields.io/github/followers/antilneeraj?style=social)](https://github.com/antilneeraj)
-
-Made with ❤️ and lots of ☕ by [Neeraj Antil](https://github.com/antilneeraj)
-
+Made with ☕ by Neeraj Antil
 </div>

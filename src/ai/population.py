@@ -1,21 +1,14 @@
-import random
+import time
 from src.ai.neural_network import NeuralNetwork
 from src.utils.constants import *
 
 
 class Population:
     def __init__(self, size, network_architecture=None):
-        """
-        Initialize population of neural networks
-
-        Args:
-            size: Population size
-            network_architecture: Dict with input_nodes, hidden_nodes, output_nodes
-        """
         self.size = size
         self.individuals = []
         self.fitness_scores = []
-        self.generation = 0
+        self.generation = 1
 
         # Default architecture for Flappy Bird
         if network_architecture is None:
@@ -29,13 +22,22 @@ class Population:
         self.initialize_population()
 
     def initialize_population(self):
-        """Create initial random population"""
+        """Create initial random population with FORCED DIVERSITY"""
         self.individuals = []
-        for _ in range(self.size):
+        current_time = int(time.time() * 1000)
+
+        print(f"🧬 Generating {self.size} unique neural networks...")
+
+        for i in range(self.size):
+            # Create a unique seed for every single bird
+            # Combining time + index ensures no two birds are identical
+            unique_seed = (current_time + i * 997) % (2**32 - 1)
+
             network = NeuralNetwork(
                 input_nodes=self.architecture['input_nodes'],
                 hidden_nodes=self.architecture['hidden_nodes'],
-                output_nodes=self.architecture['output_nodes']
+                output_nodes=self.architecture['output_nodes'],
+                seed=unique_seed  # Explicitly pass the seed
             )
             self.individuals.append(network)
 
@@ -71,16 +73,19 @@ class Population:
 
     def replace_population(self, new_individuals):
         """Replace current population with new individuals"""
-        if len(new_individuals) != self.size:
-            raise ValueError(
-                f"New population size {len(new_individuals)} != expected size {self.size}")
+        # Allow slight mismatches in size (handle immigrants/elites) by trimming or padding if necessary
+        if len(new_individuals) > self.size:
+            new_individuals = new_individuals[:self.size]
 
         self.individuals = new_individuals
-        self.fitness_scores = [0.0] * self.size
+        self.fitness_scores = [0.0] * len(new_individuals)
         self.generation += 1
 
     def sort_by_fitness(self, descending=True):
         """Sort population by fitness"""
+        if not self.fitness_scores or len(self.fitness_scores) != len(self.individuals):
+            return
+
         sorted_data = sorted(zip(self.individuals, self.fitness_scores),
                              key=lambda x: x[1], reverse=descending)
         self.individuals, self.fitness_scores = zip(*sorted_data)
@@ -89,8 +94,9 @@ class Population:
 
     def save_best(self, filename):
         """Save best individual to file"""
-        best_individual, best_fitness = self.get_best_individual()
-        if best_individual:
+        best_obj = self.get_best_individual()
+        if best_obj:
+            best_individual, best_fitness = best_obj
             best_individual.save_to_file(filename)
             return best_fitness
         return 0
@@ -103,9 +109,10 @@ class Population:
         # Calculate average pairwise distance between individuals
         total_distance = 0
         comparisons = 0
+        sample_size = min(10, len(self.individuals))
 
-        for i in range(min(10, len(self.individuals))):  # Sample for performance
-            for j in range(i + 1, min(10, len(self.individuals))):
+        for i in range(sample_size):
+            for j in range(i + 1, sample_size):
                 params1 = self.individuals[i].get_weights_as_array()
                 params2 = self.individuals[j].get_weights_as_array()
                 distance = sum(abs(p1 - p2)

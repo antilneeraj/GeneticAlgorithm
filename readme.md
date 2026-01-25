@@ -7,7 +7,7 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg?style=for-the-badge&logo=python)](https://www.python.org/)
 [![Pygame](https://img.shields.io/badge/Pygame-2.5+-red.svg?style=for-the-badge&logo=pygame)](https://www.pygame.org/)<br>
-[![Open In Colab](https://img.shields.io/badge/Live%20Demo-Open%20in%20Colab-orange?style=for-the-badge)](https://colab.research.google.com/github/antilneeraj/geneticalgorithm/blob/main/Colab_Demo.ipynb)
+[![Open In Gitpod](https://img.shields.io/badge/Open%20in_-%20Gitpod-blue?style=for-the-badge&logo=gitpod)](https://gitpod.io/#https://github.com/antilneeraj/geneticalgorithm)
 
 [**Quick Start**](#-quick-start) • [**Architecture**](#-neural-network-architecture) • [**Genetic Algorithm**](#-genetic-algorithm-implementation) • [**Benchmarks**](#-performance--results)
 
@@ -124,6 +124,16 @@ Hyperparameters are located in `src/utils/constants.py`. Tweak these to experime
 
 ---
 
+## 🧪 Quick Experiments (Try These!)
+
+Want to break the AI? Experiment with the evolutionary dynamics in `src/utils/constants.py`:
+
+1. **The "Chaos" Test**: Set `MUTATION_RATE = 0.8`. Watch as the birds struggle to retain knowledge between generations.
+2. **Minimalist Brain**: Change `NN_HIDDEN_NODES = [2]`. Can the agent solve the game with only 2 "neurons"? 
+3. **Hyper-Selection**: Change `ELITE_COUNT` to 50. Watch how genetic diversity collapses as the "top" birds dominate the gene pool.
+
+---
+
 ## 📊 Performance & Results
 
 Typical convergence behavior observed with default parameters:
@@ -134,6 +144,13 @@ Typical convergence behavior observed with default parameters:
 - **Gen 500+**: Mastery. Agents can play indefinitely.
 
 *Note: Convergence speed is highly dependent on `POPULATION_SIZE` and `MUTATION_RATE`. Larger populations generally converge in fewer generations but take longer computation time per generation.*
+
+### The Learning Curve
+As the population evolves, the mean fitness (survival time) increases exponentially before plateauing as the solution space is optimized.
+![Training Graph](data/statistics/training_results.png)
+*Figure 1: Fitness progression over 100 generations showing rapid convergence (Blue) followed by elite optimization (Green).*
+
+> **Note**: You can generate your own local stats plot by running the analysis script `plot_results.py` (see below) which parses the `data/statistics/evolution_stats.json` file.
 
 ---
 
@@ -146,16 +163,19 @@ GeneticAlgorithm
 │  │  └─ All graphics used in the game (bird, pipe, background, base)
 │  └─ sounds
 │     └─ All sound effects (flap, point, hit, die)
+├─ collab.ipynb
 ├─ CONTRIBUTING.md
 ├─ data
 │  ├─ high_score.txt
 │  ├─ models
 │  │  └─ best_bird.json
 │  └─ statistics
-│     └─ evolution_stats.json
+│     ├─ evolution_stats.json
+│     └─ training_results.png
 ├─ diagnostic_ai_debug.py
 ├─ LICENSE
 ├─ main.py
+├─ plot_results.py
 ├─ readme.md
 ├─ requirements.txt
 ├─ src
@@ -177,7 +197,6 @@ GeneticAlgorithm
 │     └─ constants.py
 ├─ validateNN.py
 └─ validate_ai_constants.py
-
 ```
 
 ---

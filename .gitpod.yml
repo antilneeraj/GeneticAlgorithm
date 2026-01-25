@@ -1,0 +1,19 @@
+image: gitpod/workspace-full-vnc
+
+tasks:
+  - name: Install Dependencies
+    init: |
+      sudo apt-get update 
+      # Install sound libraries often needed by Pygame on Linux
+      sudo apt-get install -y libsdl2-mixer-2.0-0 libsdl2-image-2.0-0 libsdl2-2.0-0
+      pip install -r requirements.txt
+    command: |
+      echo "🚀 Ready! Click the 'Remote Desktop' (port 6080) to see the game."
+      echo "Run: python main.py --mode ai_training --population 100 --no-sound --fps 60"
+
+ports:
+  - port: 6080
+    onOpen: open-preview
+    visibility: public
+  - port: 5900
+    onOpen: ignore

@@ -6,8 +6,8 @@
 [![Stars](https://img.shields.io/github/stars/antilneeraj/geneticalgorithm?style=for-the-badge&logo=github&color=yellow)](https://github.com/antilneeraj/geneticalgorithm/stargazers)
 [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg?style=for-the-badge&logo=python)](https://www.python.org/)
-[![Pygame](https://img.shields.io/badge/Pygame-2.5+-red.svg?style=for-the-badge&logo=pygame)](https://www.pygame.org/)
-[![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg?style=for-the-badge)](https://github.com/psf/black)
+[![Pygame](https://img.shields.io/badge/Pygame-2.5+-red.svg?style=for-the-badge&logo=pygame)](https://www.pygame.org/)<br>
+[![Open In Colab](https://img.shields.io/badge/Live%20Demo-Open%20in%20Colab-orange?style=for-the-badge)](https://colab.research.google.com/github/antilneeraj/geneticalgorithm/blob/main/Colab_Demo.ipynb)
 
 [**Quick Start**](#-quick-start) • [**Architecture**](#-neural-network-architecture) • [**Genetic Algorithm**](#-genetic-algorithm-implementation) • [**Benchmarks**](#-performance--results)
 
@@ -15,22 +15,22 @@
 
 ---
 
-## 🎯 Project Overview
+## Overview
 
-This repository hosts a robust implementation of **NeuroEvolution** applied to the classic Flappy Bird game. It serves as a research testbed for studying how biological evolution principles can be applied to train artificial neural networks without backpropagation or labeled training data.
+This repository contains a solid piece of work in **NeuroEvolution** in Flappy Bird game. It is a research platform that aims at applying the principles of biological evolution in training artificial neural networks without backpropagation or the need for labeled data.
 
-The system uses a **Genetic Algorithm (GA)** to evolve the weights and biases of a fixed-topology neural network. Agents (birds) learn to navigate obstacles purely through evolutionary pressure—survival of the fittest.
+The system employs a **Genetic Algorithm (GA)** to modify the weights and biases of a constant, topology neural network. In this way, the agents (birds) learn to avoid the obstacles purely through survival of the fittest, i.e., evolution.
 
-### 🌟 Key Features for Researchers
-- **Adaptive Evolutionary Parameters**: Mutation rates dynamicially adjust based on population diversity to prevent premature convergence.
-- **Pluggable Architecture**: Modular design allows easy swapping of crossover strategies (Uniform, Single-Point, Arithmetic) and selection methods.
-- **Real-time Diagnostics**: Monitor the "brain" of the best performing agent in real-time.
-- **Serialization**: Save and load the entire state of the best neural networks (JSON format) for later analysis or transfer learning.
-- **Headless Training**: Decoupled game logic allows for high-speed training (configurable).
+### Key Features for Researchers
+- **Adaptive Evolutionary Parameters**: Mutation rates dynamically vary according to the population diversity to avoid stagnation of the solution.
+- **Pluggable Architecture**: The modular design of the package allows you to swap the crossover strategies (Uniform, Single, Point, Arithmetic) and selection methods easily.
+- **Real-time Diagnostics**: You can keep track of the "brain" of the best, performing agent live.
+- **Serialization**: You can save and reload the whole state of the best neural networks (in JSON format) for subsequent examination or transfer learning.
+- **Headless Training**: The game logic is decoupled which allows for high, speed training (configurable).
 
 ---
 
-## 🧠 Neural Network Architecture
+## Neural Network Architecture
 
 Each agent is controlled by a feed-forward neural network. The topology is fixed, while the weights and biases are the subject of evolution.
 
@@ -110,7 +110,7 @@ python main.py --mode ai_play
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 Hyperparameters are located in `src/utils/constants.py`. Tweak these to experiment with evolutionary dynamics:
 
@@ -137,27 +137,47 @@ Typical convergence behavior observed with default parameters:
 
 ---
 
-## 📁 Project Structure
+## 📁 Project Tree
 
 ```
-geneticalgorithm/
-├── src/
-│   ├── ai/                # Core Intelligence Logic
-│   │   ├── neural_network.py    # Feed-forward NN implementation
-│   │   ├── genetic_algorithm.py # Evolution engine
-│   │   ├── crossover.py         # Crossover strategies
-│   │   ├── mutation.py          # Mutation strategies
-│   │   └── fitness.py           # Fitness evaluation
-│   ├── game/              # Game Simulation
-│   │   ├── game_engine.py       # Main loop
-│   │   └── bird.py              # Agent physics & sensing
-│   └── utils/             # Config & Helpers
-├── data/
-│   ├── models/            # Serialized Best Birds (.json)
-│   └── statistics/        # Evolution metrics
-├── assets/                # Sprites & Audio
-├── main.py                # Entry point
-└── README.md
+GeneticAlgorithm
+├─ assets
+│  ├─ images
+│  │  └─ All graphics used in the game (bird, pipe, background, base)
+│  └─ sounds
+│     └─ All sound effects (flap, point, hit, die)
+├─ CONTRIBUTING.md
+├─ data
+│  ├─ high_score.txt
+│  ├─ models
+│  │  └─ best_bird.json
+│  └─ statistics
+│     └─ evolution_stats.json
+├─ diagnostic_ai_debug.py
+├─ LICENSE
+├─ main.py
+├─ readme.md
+├─ requirements.txt
+├─ src
+│  ├─ ai
+│  │  ├─ crossover.py
+│  │  ├─ fitness.py
+│  │  ├─ genetic_algorithm.py
+│  │  ├─ mutation.py
+│  │  ├─ neural_network.py
+│  │  ├─ population.py
+│  │  └─ selection.py
+│  ├─ game
+│  │  ├─ bird.py
+│  │  ├─ game_engine.py
+│  │  ├─ pipe.py
+│  │  └─ renderer.py
+│  └─ utils
+│     ├─ asset_loader.py
+│     └─ constants.py
+├─ validateNN.py
+└─ validate_ai_constants.py
+
 ```
 
 ---

@@ -42,7 +42,6 @@ class GeneticAlgorithm:
         self.diversity_threshold = 0.1
 
     def assign_brains_to_birds(self, birds):
-        """Assign neural network brains to birds"""
         # Ensure population is large enough (handle edge cases)
         while len(self.population.individuals) < len(birds):
             self.population.individuals.append(
@@ -54,7 +53,6 @@ class GeneticAlgorithm:
                 bird.brain = self.population.individuals[i]
 
     def calculate_fitness_scores(self, birds, game_time_ms):
-        """Calculate fitness for all birds after simulation"""
         fitness_scores = []
 
         for bird in birds:
@@ -68,7 +66,6 @@ class GeneticAlgorithm:
         return fitness_scores
 
     def select_parents(self, count=2):
-        """Select parents for reproduction"""
         parents = []
 
         for _ in range(count):

@@ -8,12 +8,6 @@ class NeuralNetwork:
     def __init__(self, input_nodes=4, hidden_nodes=[6, 4], output_nodes=1, seed=None):
         """
         Initialize neural network with specified architecture
-
-        Args:
-            input_nodes: Number of input neurons (bird state: y, velocity, pipe_x, pipe_y)
-            hidden_nodes: List of hidden layer sizes [6, 4] 
-            output_nodes: Number of output neurons (1 for jump decision)
-            seed: Random seed for initialization (None for automatic)
         """
         self.input_nodes = input_nodes
         self.hidden_nodes = hidden_nodes
@@ -77,34 +71,21 @@ class NeuralNetwork:
             self.biases.append(bias_vector)
 
     def sigmoid(self, x):
-        """Sigmoid activation function"""
         # Prevent overflow
         x = np.clip(x, -500, 500)
         return 1.0 / (1.0 + np.exp(-x))
 
     def tanh(self, x):
-        """Hyperbolic tangent activation function"""
         x = np.clip(x, -500, 500)
         return np.tanh(x)
 
     def relu(self, x):
-        """ReLU activation function"""
         return np.maximum(0, x)
 
     def leaky_relu(self, x, alpha=0.01):
-        """Leaky ReLU activation function"""
         return np.where(x > 0, x, alpha * x)
 
     def forward_pass(self, inputs):
-        """
-        Perform forward pass through the network
-
-        Args:
-            inputs: List/array of input values [bird_y, velocity, pipe_distance, gap_y]
-
-        Returns:
-            output: Network output value (0-1 for jump decision)
-        """
         if len(inputs) != self.input_nodes:
             raise ValueError(
                 f"Expected {self.input_nodes} inputs, got {len(inputs)}")
@@ -129,13 +110,7 @@ class NeuralNetwork:
 
     def predict(self, inputs):
         """
-        Make a prediction (used by birds during gameplay)
-
-        Args:
-            inputs: Game state inputs
-
-        Returns:
-            bool: True if bird should jump, False otherwise
+        Make a prediction (used by birds during gameplay ~ jump decision)
         """
         output = self.forward_pass(inputs)
         return output > 0.5  # Jump if output > 0.5
@@ -158,9 +133,6 @@ class NeuralNetwork:
         """
         Set network weights and biases from flattened array
         Used by genetic algorithm to create offspring
-
-        Args:
-            params_array: Flattened array of all network parameters
         """
         if len(params_array) != self.get_total_params():
             raise ValueError(

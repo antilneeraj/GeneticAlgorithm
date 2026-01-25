@@ -4,17 +4,6 @@ from src.utils.constants import *
 class Fitness:
     @staticmethod
     def calculate_fitness(bird, game_time_ms, generation=1):
-        """
-        Calculate fitness score for a bird
-
-        Args:
-            bird: Bird object with game performance data
-            game_time_ms: Time bird survived in milliseconds
-            generation: Current generation (for adaptive scoring)
-
-        Returns:
-            float: Fitness score
-        """
         # Base components of fitness
         survival_bonus = game_time_ms * FITNESS_BONUS_DISTANCE
         pipe_bonus = bird.score * FITNESS_BONUS_PIPE
@@ -45,15 +34,6 @@ class Fitness:
 
     @staticmethod
     def normalize_fitness(fitness_scores):
-        """
-        Normalize fitness scores to 0-1 range
-
-        Args:
-            fitness_scores: List of fitness values
-
-        Returns:
-            List of normalized fitness values
-        """
         if not fitness_scores or len(fitness_scores) <= 1:
             return fitness_scores
 
